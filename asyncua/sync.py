@@ -7,7 +7,7 @@ from threading import Thread, Condition
 import logging
 from typing import List, Tuple, Union, Optional
 
-from asyncua import ua
+from asyncua import ua, Node
 from asyncua import client
 from asyncua import server
 from asyncua import common
@@ -89,6 +89,7 @@ def syncmethod(func):
     """
     decorator for sync methods
     """
+
     def wrapper(self, *args, **kwargs):
         args, kwargs = _to_async(args, kwargs)
         aio_func = getattr(self.aio_obj, func.__name__)
@@ -102,6 +103,7 @@ def syncfunc(aio_func):
     """
     decorator for sync function
     """
+
     def decorator(func, *args, **kwargs):
         def wrapper(*args, **kwargs):
             if not args:
@@ -143,9 +145,17 @@ def instantiate(parent, node_type, nodeid=None, bname=None, dname=None, idx=0, i
 
 
 # byme :BEGIN:
+# from events.py
 @syncfunc(aio_func=common.events.get_filter_from_event_type)
 def get_filter_from_event_type(evtypes, objectslist=[]):
     pass
+
+
+@syncfunc(aio_func=common.events.where_clause_from_evtype)
+def where_clause_from_evtype(evtypes):
+    pass
+
+
 # byme :END:
 
 
@@ -176,7 +186,7 @@ class Client:
         return "Sync" + self.aio_obj.__str__()
 
     __repr__ = __str__
-    
+
     @property
     def application_uri(self):
         return self.aio_obj.application_uri
@@ -201,9 +211,10 @@ class Client:
 
     def set_password(self, pwd: str):
         self.aio_obj.set_password(pwd)
-        
+
     @syncmethod
-    async def load_private_key(self, path: str, password: Optional[Union[str, bytes]] = None, extension: Optional[str] = None):
+    async def load_private_key(self, path: str, password: Optional[Union[str, bytes]] = None,
+                               extension: Optional[str] = None):
         pass
 
     @syncmethod
@@ -464,10 +475,10 @@ class SyncNode:
 
     @syncmethod
     def get_children_descriptions(
-        self,
-        refs=ua.ObjectIds.HierarchicalReferences,
-        nodeclassmask=ua.NodeClass.Unspecified,
-        includesubtypes=True,
+            self,
+            refs=ua.ObjectIds.HierarchicalReferences,
+            nodeclassmask=ua.NodeClass.Unspecified,
+            includesubtypes=True,
     ):
         pass
 
@@ -557,11 +568,21 @@ class SyncNode:
 
     @syncmethod
     def get_references(
-        self,
-        refs=ua.ObjectIds.References,
-        direction=ua.BrowseDirection.Both,
-        nodeclassmask=ua.NodeClass.Unspecified,
-        includesubtypes=True,
+            self,
+            refs=ua.ObjectIds.References,
+            direction=ua.BrowseDirection.Both,
+            nodeclassmask=ua.NodeClass.Unspecified,
+            includesubtypes=True,
+    ):
+        pass
+
+    @syncmethod
+    def get_referenced_nodes(
+            self,
+            refs=ua.ObjectIds.References,
+            direction=ua.BrowseDirection.Both,
+            nodeclassmask=ua.NodeClass.Unspecified,
+            includesubtypes=True
     ):
         pass
 
@@ -597,15 +618,16 @@ class Subscription:
 
     @syncmethod
     def subscribe_events(
-        self,
-        sourcenode=ua.ObjectIds.Server,
-        evtypes=ua.ObjectIds.BaseEventType,
-        evfilter=None,
-        queuesize=0,
+            self,
+            sourcenode=ua.ObjectIds.Server,
+            evtypes=ua.ObjectIds.BaseEventType,
+            evfilter=None,
+            queuesize=0,
     ):
         pass
 
-    def _make_monitored_item_request(self, node: SyncNode, attr, mfilter, queuesize, monitoring=ua.MonitoringMode.Reporting,) -> ua.MonitoredItemCreateRequest:
+    def _make_monitored_item_request(self, node: SyncNode, attr, mfilter, queuesize,
+                                     monitoring=ua.MonitoringMode.Reporting, ) -> ua.MonitoredItemCreateRequest:
         return self.aio_obj._make_monitored_item_request(node, attr, mfilter, queuesize, monitoring)
 
     @syncmethod
@@ -638,7 +660,8 @@ class XmlExporter:
 class DataTypeDictionaryBuilder:
     def __init__(self, server, idx, ns_urn, dict_name, dict_node_id=None):
         self.tloop = server.tloop
-        self.aio_obj = type_dictionary_builder.DataTypeDictionaryBuilder(server.aio_obj, idx, ns_urn, dict_name, dict_node_id)
+        self.aio_obj = type_dictionary_builder.DataTypeDictionaryBuilder(server.aio_obj, idx, ns_urn, dict_name,
+                                                                         dict_node_id)
         self.init()
 
     @property
@@ -659,11 +682,11 @@ class DataTypeDictionaryBuilder:
 
 
 def new_struct_field(
-    name: str,
-    dtype: Union[ua.NodeId, SyncNode, ua.VariantType],
-    array: bool = False,
-    optional: bool = False,
-    description: str = "",
+        name: str,
+        dtype: Union[ua.NodeId, SyncNode, ua.VariantType],
+        array: bool = False,
+        optional: bool = False,
+        description: str = "",
 ) -> ua.StructureField:
     if isinstance(dtype, SyncNode):
         dtype = dtype.aio_obj
@@ -672,20 +695,20 @@ def new_struct_field(
 
 @syncfunc(aio_func=common.structures104.new_enum)
 def new_enum(
-    server: Union["Server", "Client"],
-    idx: Union[int, ua.NodeId],
-    name: Union[int, ua.QualifiedName],
-    values: List[str],
-    optional: bool = False
+        server: Union["Server", "Client"],
+        idx: Union[int, ua.NodeId],
+        name: Union[int, ua.QualifiedName],
+        values: List[str],
+        optional: bool = False
 ) -> SyncNode:
     pass
 
 
 @syncfunc(aio_func=common.structures104.new_struct)
 def new_struct(
-    server: Union["Server", "Client"],
-    idx: Union[int, ua.NodeId],
-    name: Union[int, ua.QualifiedName],
-    fields: List[ua.StructureField],
+        server: Union["Server", "Client"],
+        idx: Union[int, ua.NodeId],
+        name: Union[int, ua.QualifiedName],
+        fields: List[ua.StructureField],
 ) -> Tuple[SyncNode, List[SyncNode]]:
     pass

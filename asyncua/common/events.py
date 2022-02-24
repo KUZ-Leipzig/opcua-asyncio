@@ -270,10 +270,7 @@ async def where_clause_from_evtype(evtypes):
     #                                       -> Request of MonitoredItems with false TypeId
     # byme :BEGIN: fix TypeDefinitionId for SimpleAttributeOperand
     # FIXME list behaviour is dodgy
-    if isinstance(evtypes, list):
-        op.TypeDefinitionId = evtypes[0].nodeid
-    else:
-        op.TypeDefinitionId = evtypes.nodeid
+    op.TypeDefinitionId = evtypes[0].nodeid
     # byme :END:
 
     op.BrowsePath.append(ua.QualifiedName("EventType", 0))
