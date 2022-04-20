@@ -198,6 +198,10 @@ async def select_clauses_from_evtype(evtypes, objectslist):
         # byme :BEGIN: BEWARE self coded (monkeypatch)  # byme critical point for subtypes -> Namespace and Index were set to 0 !
         #                                               -> Request of MonitoredItems with false TypeId
 
+        # set the TypeDefinitionId to Objects NodeId
+        for subclause in selected_clauses_part:
+            subclause.TypeDefinitionId = evtype.nodeid
+
         select_clauses += selected_clauses_part
 
         # append all properties and variables of a evtype's object and its subobjects
@@ -234,7 +238,6 @@ async def select_clauses_from_evtype(evtypes, objectslist):
                     # add all
                     selected_clauses_obj += await append_from_evtype_object(subobj, obj_browse_path)
 
-
             return selected_clauses_obj
 
         # evtype can have objects
@@ -247,10 +250,6 @@ async def select_clauses_from_evtype(evtypes, objectslist):
             else:
                 # add all
                 select_clauses += await append_from_evtype_object(evtype_object, [])
-
-        # set the TypeDefinitionId to evtype's NodeId
-        for clause in select_clauses:
-            clause.TypeDefinitionId = evtype.nodeid
 
         # byme :END:
 
@@ -338,6 +337,8 @@ async def get_event_objects_from_type_node(node):
     return await select_event_attributes_from_type_node(
         node, lambda n: n.get_children(refs=ua.ObjectIds.HasComponent, nodeclassmask=ua.NodeClass.Object)
     )
+
+
 # byme :END:
 
 
