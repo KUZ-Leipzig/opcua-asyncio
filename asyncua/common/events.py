@@ -144,16 +144,16 @@ async def get_filter_from_event_type(eventtypes, objectslist=[]):
     evfilter.SelectClauses = await select_clauses_from_evtype(eventtypes, objectslist)
 
     # byme :BEGIN: Debug SelectClause
-    with open('select_clause_SimpleAttributeOperands.json', 'w+') as sel_file:
-        json_obj = {}
-        for i, op in enumerate(evfilter.SelectClauses):
-            json_obj['SimpleAttributeOperand' + str(i + 1)] = {
-                "TypeDefinitionId": str(op.TypeDefinitionId),
-                "BrowsePath": str(op.BrowsePath),
-                "AttributeId": str(op.AttributeId),
-                "IndexRange": str(op.IndexRange)
-            }
-        json.dump(json_obj, sel_file, indent=2)
+    # with open('select_clause_SimpleAttributeOperands.json', 'w+') as sel_file:
+    #     json_obj = {}
+    #     for i, op in enumerate(evfilter.SelectClauses):
+    #         json_obj['SimpleAttributeOperand' + str(i + 1)] = {
+    #             "TypeDefinitionId": str(op.TypeDefinitionId),
+    #             "BrowsePath": str(op.BrowsePath),
+    #             "AttributeId": str(op.AttributeId),
+    #             "IndexRange": str(op.IndexRange)
+    #         }
+    #     json.dump(json_obj, sel_file, indent=2)
     # byme :END:
 
     evfilter.WhereClause = await where_clause_from_evtype(eventtypes)
