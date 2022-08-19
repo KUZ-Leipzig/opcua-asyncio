@@ -12,8 +12,8 @@ needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 setup(
-    name="asyncua",
-    version="0.9.92-kuz",
+    name="kuz-asyncua",
+    version="0.9.92",
     description="Pure Python OPC-UA client and server library modified by KUZ MSR-Members",
     long_description=long_description,
     long_description_content_type='text/markdown',
